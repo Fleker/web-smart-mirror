@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>Smart Mirror</title>
+        <style>
+            body {
+                background-color: black;
+                color: #dedede;
+                font-family: sans-serif;
+            }
+            h1, h2 {
+                text-align: right;
+                display: block;
+                margin-right:8px;
+            }
+        </style>
+        <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
+    </head>
+    <body>
+        <h1 id='time'></h1>
+        <h2 id='date'></h2>
+        
+        <script>
+            function getTime() {
+                var date = new Date();
+                var time = (date.getHours() > 12) ? date.getHours() - 12 : date.getHours();
+                time += ":";
+                time += (date.getMinutes() > 9) ? date.getMinutes() : "0" + date.getMinutes();
+                return time;
+            }
+            
+            function getDate() {
+                var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                var date = new Date();
+                return days[date.getDay()] + ", " + months[date.getMonth()];
+            }
+            
+            setInterval(function() {
+                $('#time').html(getTime());
+                $('#date').html(getDate());
+            }, 1000);
+            setTimeout(function() {
+                window.location.reload()   
+            }, 1000 * 60 * 60 * 24); // Every 24 hours
+        </script>
+    </body>
+</html>
