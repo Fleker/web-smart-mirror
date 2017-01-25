@@ -34,7 +34,7 @@
         <script>
             var noSleep;
             window.onload = function() {
-                noSleep = new NoSleep();   
+//                noSleep = new NoSleep();   
                 document.addEventListener('click', enableNoSleep, false);
                 $('body').click();
                 runEverySecond();
@@ -42,7 +42,7 @@
             };
             
             function enableNoSleep() {
-                noSleep.enable();
+//                noSleep.enable();
                 console.log('Enabling wake lock');
                 document.removeEventListener('click', enableNoSleep, false);
             }
@@ -62,26 +62,9 @@
                 return days[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate();
             }
             
-            function getWeather(onResponse) {
-                 /*$.get('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en', {}, function(response) {
-                        var data = JSON.parse(response);
-                        return data.currently.summary + " " + data.currently.temperature + "°";
-                 });*/
-/*                $.ajax({
-                    url: 'https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en',
-                    data: {},
-                    type: 'GET',
-                    crossDomain: true,
-                    dataType: 'jsonp',
-                    jsonpCallback: 'onResponse',
-                    success: function(response) {
-//                        var data = JSON.parse(response);
-//                        onResponse(data.currently.summary + " " + data.currently.temperature + "°");
-                    },
-                    error: function() {}
-                });*/
-                $.getJSON('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en',function(json){
-                  onResponse(data.currently.summary + " " + data.currently.temperature + "°");
+            function getWeather(onResponse) {     
+                $.getJSON('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en&callback=?',function(json){
+                    onResponse(json.currently.summary + " " + Math.round(json.currently.temperature) + "°");
                 });
             }
             
@@ -92,7 +75,6 @@
             
             function runEveryHalfHour() {
                 getWeather(function(response) {
-                    console.error(response);
                     $('#weather').html(response);
                 });
             }
