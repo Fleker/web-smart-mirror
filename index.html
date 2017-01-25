@@ -62,11 +62,27 @@
                 return days[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate();
             }
             
-            function getWeather() {
-                 $.get('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en', {}, function(response) {
+            function getWeather(onResponse) {
+                 /*$.get('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en', {}, function(response) {
                         var data = JSON.parse(response);
                         return data.currently.summary + " " + data.currently.temperature + "°";
-                 });
+                 });*/
+/*                $.ajax({
+                    url: 'https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en',
+                    data: {},
+                    type: 'GET',
+                    crossDomain: true,
+                    dataType: 'jsonp',
+                    jsonpCallback: 'onResponse',
+                    success: function(response) {
+//                        var data = JSON.parse(response);
+//                        onResponse(data.currently.summary + " " + data.currently.temperature + "°");
+                    },
+                    error: function() {}
+                });*/
+                $.getJSON('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en',function(json){
+                  onResponse(data.currently.summary + " " + data.currently.temperature + "°");
+                });
             }
             
             function runEverySecond() {
@@ -75,7 +91,10 @@
             }
             
             function runEveryHalfHour() {
-                $('#weather').html(getWeather());
+                getWeather(function(response) {
+                    console.error(response);
+                    $('#weather').html(response);
+                });
             }
             
             function runEveryDay() {
