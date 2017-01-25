@@ -1,5 +1,6 @@
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Smart Mirror</title>
         <style>
             body {
@@ -12,14 +13,34 @@
                 display: block;
                 margin-right:8px;
             }
+            h1 {
+                font-size: 50pt;
+            }
+            h2 {
+                font-size: 30pt;   
+            }
         </style>
         <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
+        <script src='NoSleep.min.js' type="text/javascript"></script>
     </head>
     <body>
         <h1 id='time'></h1>
         <h2 id='date'></h2>
         
         <script>
+            var noSleep;
+            window.onload = function() {
+                noSleep = new NoSleep();   
+                document.addEventListener('click', enableNoSleep, false);
+                $('body').click();
+            };
+            
+            function enableNoSleep() {
+                noSleep.enable();
+                console.log('Enabling wake lock');
+                document.removeEventListener('click', enableNoSleep, false);
+            }
+            
             function getTime() {
                 var date = new Date();
                 var time = (date.getHours() > 12) ? date.getHours() - 12 : date.getHours();
@@ -32,7 +53,7 @@
                 var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                 var date = new Date();
-                return days[date.getDay()] + ", " + months[date.getMonth()];
+                return days[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate();
             }
             
             setInterval(function() {
