@@ -8,16 +8,19 @@
                 color: #dedede;
                 font-family: sans-serif;
             }
-            h1, h2 {
+            h1, h2, div {
                 text-align: right;
                 display: block;
                 margin-right:8px;
             }
             h1 {
-                font-size: 50pt;
+                font-size:50pt;
             }
             h2 {
-                font-size: 30pt;   
+                font-size:34pt;   
+            }
+            div {
+                font-size:36pt;   
             }
         </style>
         <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
@@ -26,6 +29,7 @@
     <body>
         <h1 id='time'></h1>
         <h2 id='date'></h2>
+        <div id='weather'></div>
         
         <script>
             var noSleep;
@@ -33,6 +37,8 @@
                 noSleep = new NoSleep();   
                 document.addEventListener('click', enableNoSleep, false);
                 $('body').click();
+                runEverySecond();
+                runEveryHalfHour();
             };
             
             function enableNoSleep() {
@@ -56,12 +62,34 @@
                 return days[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate();
             }
             
-            setInterval(function() {
+            function getWeather() {
+                 $.get('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en', {}, function(response) {
+                        var data = JSON.parse(response);
+                        return data.currently.summary + " " + data.currently.temperature + "°";
+                 });
+            }
+            
+            function runEverySecond() {
                 $('#time').html(getTime());
-                $('#date').html(getDate());
-            }, 1000);
+                $('#date').html(getDate());   
+            }
+            
+            function runEveryHalfHour() {
+                $('#weather').html(getWeather());
+            }
+            
+            function runEveryDay() {
+            }
+            
+            setInterval(function() {
+                runEverySecond();
+            }, 1000); // Every second
+            setInterval(function() {
+                runEveryHalfHour();
+            }, 1000 * 60 * 30); // Every half hour
             setTimeout(function() {
-                window.location.reload()   
+                runEveryDay();                
+                window.location.reload();
             }, 1000 * 60 * 60 * 24); // Every 24 hours
         </script>
     </body>
