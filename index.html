@@ -39,6 +39,7 @@
 //                noSleep = new NoSleep();   
                 document.addEventListener('click', enableNoSleep, false);
                 $('body').click();
+                readGetParameters();
                 runEverySecond();
                 runEveryHalfHour();
             };
@@ -66,14 +67,14 @@
             }
             
             function getWeather(onResponse) {     
-                $.getJSON('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en&callback=?',function(json) {
+                $.getJSON('https://api.forecast.io/forecast/' + retrieveGet('darksky') + '/' + retrieveGet('lat') + ',' + retrieveGet('lon') + '?exclude=minutely,flags&lang=en&callback=?',function(json) {
                     onResponse(json.currently.summary + " " + Math.round(json.currently.temperature) + "°");
                 });
             }
             
             function getBbcWorldNews(onResponse) {
                 $.ajax({
-                    url: 'https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=7755875d17a946ed9977bbc0420f0915',
+                    url: 'https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=' + retrieveGet('newsapi'),
                     data: {},
                     type: 'GET',
                     crossDomain: true,
@@ -100,16 +101,31 @@
             }
             
             function runEveryHalfHour() {
-                getWeather(function(response) {
-                    $('#weather').html(response);
-                });
-                getBbcWorldNews(function(response) {
-                    $('#news').html(response);
-                });
-                $('#stock').html('');
-                getStockInfo('GOOG', function(response) {
-                    $('#stock').append("<div>" + response + "</div>");
-                });
+                if (issetGet('darksky') && issetGet('lat') && issetGet('lon')) {
+                    getWeather(function(response) {
+                        $('#weather').html(response);
+                    });
+                } else {
+                    console.warn('You need to set darksky, lat, and lon parameters');   
+                }
+                if (issetGet('newsapi')) {
+                    getBbcWorldNews(function(response) {
+                        $('#news').html(response);
+                    });
+                } else {
+                    console.warn('You need to set newsapi parameter');   
+                }
+                if (issetGet('stocks')) {
+                    $('#stock').html('');
+                    var stocks = retrieveGet('stocks').split(',');
+                    for (var i = 0; i < stocks.length; i++) {
+                        getStockInfo(stocks[i], function(response) {
+                            $('#stock').append("<div>" + response + "</div>");
+                        });
+                    }
+                } else {
+                    console.warn('No stocks were included');
+                }   
             }
             
             function runEveryDay() {
@@ -136,6 +152,24 @@
               } else if(element.msRequestFullscreen) {
                 element.msRequestFullscreen();
               }
+            }
+            
+            function readGetParameters() {
+                window.getparams = {};
+                var queries = window.location.search.substring(1);
+                var eachquery = queries.split('&');
+                for (var i = 0; i < eachquery.length; i++) {
+                    var parts = eachquery[i].split('=');
+                    window.getparams[parts[0]] = parts[1];
+                }
+            }
+
+            function issetGet(key) {
+                return window.getparams[key] !== undefined;   
+            }
+
+            function retrieveGet(key) {
+                return window.getparams[key];   
             }
         </script>
     </body>
