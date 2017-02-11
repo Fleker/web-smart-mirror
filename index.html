@@ -30,6 +30,8 @@
         <h1 id='time'></h1>
         <h2 id='date'></h2>
         <div id='weather'></div>
+        <div id='news'></div>
+        <div id='stock'></div>
         
         <script>
             var noSleep;
@@ -43,6 +45,7 @@
             
             function enableNoSleep() {
 //                noSleep.enable();
+                launchIntoFullscreen(document.documentElement);
                 console.log('Enabling wake lock');
                 document.removeEventListener('click', enableNoSleep, false);
             }
@@ -63,8 +66,31 @@
             }
             
             function getWeather(onResponse) {     
-                $.getJSON('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en&callback=?',function(json){
+                $.getJSON('https://api.forecast.io/forecast/6bb985b59e0265149fc0e4d7159ff9b2/39.7029,-75.1118?exclude=minutely,flags&lang=en&callback=?',function(json) {
                     onResponse(json.currently.summary + " " + Math.round(json.currently.temperature) + "°");
+                });
+            }
+            
+            function getBbcWorldNews(onResponse) {
+                $.ajax({
+                    url: 'https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=7755875d17a946ed9977bbc0420f0915',
+                    data: {},
+                    type: 'GET',
+                    crossDomain: true,
+                    success: function(res) { onResponse(res.articles[0].title + " - BBC News"); },
+                    error: function() { console.log('Failed!'); },
+                });
+            }
+            
+            function getStockInfo(symbol, onResponse) {
+                $.ajax({
+                    url: 'http://dev.markitondemand.com/MODApis/Api/v2/Quote/jsonp?symbol=' + symbol,
+                    data: {},
+                    type: 'GET',
+                    dataType: 'jsonp',
+                    crossDomain: true,
+                    success: function(res) { console.log(res); onResponse(res.Symbol + " " + res.LastPrice + " " + res.ChangePercent.toPrecision(2) + "%"); },
+                    error: function() { console.log('Failed!'); },
                 });
             }
             
@@ -76,6 +102,13 @@
             function runEveryHalfHour() {
                 getWeather(function(response) {
                     $('#weather').html(response);
+                });
+                getBbcWorldNews(function(response) {
+                    $('#news').html(response);
+                });
+                $('#stock').html('');
+                getStockInfo('GOOG', function(response) {
+                    $('#stock').append("<div>" + response + "</div>");
                 });
             }
             
@@ -92,6 +125,18 @@
                 runEveryDay();                
                 window.location.reload();
             }, 1000 * 60 * 60 * 24); // Every 24 hours
+            
+            function launchIntoFullscreen(element) {
+              if(element.requestFullscreen) {
+                element.requestFullscreen();
+              } else if(element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+              } else if(element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+              } else if(element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+              }
+            }
         </script>
     </body>
 </html>
